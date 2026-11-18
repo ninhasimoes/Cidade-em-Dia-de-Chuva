@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Leitura · Cidade em Dia de Chuva</title>
+    <style>
+        :root {
+            --fundo: #eef4f7;
+            --cartao: #ffffff;
+            --azul: #1d5c7a;
+            --azul-claro: #d6e9f2;
+            --texto: #1c2b33;
+            --borda: #c9d9e2;
+            --alerta: #b3261e;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--fundo);
+            color: var(--texto);
+        }
+        header {
+            background: var(--azul);
+            color: #fff;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .marca { display: flex; align-items: center; gap: 12px; }
+        header h1 { margin: 0; font-size: 1.3rem; }
+        nav a { color: #fff; margin-left: 20px; text-decoration: none; }
+        nav a:hover { text-decoration: underline; }
+        main { max-width: 520px; margin: 32px auto; padding: 0 16px; }
+        .cartao {
+            background: var(--cartao);
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            padding: 24px;
+        }
+        .cartao h2 { margin-top: 0; }
+        .campo { margin-bottom: 16px; }
+        .campo label { display: block; font-weight: 600; margin-bottom: 6px; }
+        .campo input[type="text"], .campo input[type="number"], .campo input[type="datetime-local"], .campo select {
+            width: 100%;
+            padding: 9px 10px;
+            border: 1px solid var(--borda);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .campo.marcar label { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        .msg-erro { color: var(--alerta); font-size: 0.85rem; margin: 4px 0 0; }
+        .botoes { display: flex; gap: 10px; margin-top: 8px; }
+        .botao {
+            display: inline-block;
+            background: var(--azul);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 9px 16px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .botao.claro { background: var(--azul-claro); color: var(--azul); }
+    </style>
+</head>
+<body>
+<header>
+    <div class="marca">
+        <svg class="garca" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="44" height="44"
+             role="img" aria-label="Garça-branca">
+            <circle cx="32" cy="32" r="31" fill="#2f7a9c"/>
+            <path d="M30 47 L29 58 M35 47 L37 58" stroke="#f2b705" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+            <path d="M13 41 L22 40 C25 33 36 31 42 36 C47 40 45 46 38 48 C31 50 24 48 21 45 Z" fill="#ffffff"/>
+            <path d="M40 36 C47 28 34 26 37 18" stroke="#ffffff" stroke-width="4" stroke-linecap="round" fill="none"/>
+            <circle cx="37" cy="15" r="4.2" fill="#ffffff"/>
+            <path d="M40.5 13.5 L55 16 L40.5 17.5 Z" fill="#f2b705"/>
+            <circle cx="38.2" cy="14" r="0.9" fill="#1c2b33"/>
+        </svg>
+        <h1>Cidade em Dia de Chuva</h1>
+    </div>
+    <nav>
+        <a th:href="@{/bairros}">Bairros</a>
+        <a th:href="@{/trechos}">Trechos</a>
+        <a th:href="@{/leituras}">Leituras</a>
+    </nav>
+</header>
+
+<main>
+    <div class="cartao">
+        <h2>Leitura</h2>
+
+        <!-- th:object liga o formulário ao LeituraDTO que o controller colocou no Model com o nome "leitura" -->
+        <form th:action="@{/leituras/salvar}" th:object="${leitura}" method="post">
+
+            <!-- id escondido: vazio na inclusão, preenchido na alteração -->
+            <input type="hidden" th:field="*{id}">
+
+            <div class="campo">
+                <label for="trechoId">Trecho</label>
+                <select id="trechoId" th:field="*{trechoId}">
+                    <option value="">Selecione...</option>
+                    <option th:each="t : ${trechos}" th:value="${t.id}"
+                            th:text="${t.logradouro + ' (' + t.bairroNome + ')'}">Trecho</option>
+                </select>
+                <p class="msg-erro" th:if="${#fields.hasErrors('trechoId')}" th:errors="*{trechoId}">erro</p>
+            </div>
+
+            <div class="campo">
+                <label for="dataHora">Data e hora</label>
+                <input type="datetime-local" id="dataHora" th:field="*{dataHora}">
+                <p class="msg-erro" th:if="${#fields.hasErrors('dataHora')}" th:errors="*{dataHora}">erro</p>
+            </div>
+
+            <div class="campo">
+                <label for="laminaCm">Lâmina d'água (cm)</label>
+                <input type="number" id="laminaCm" min="0" max="300" th:field="*{laminaCm}">
+                <p class="msg-erro" th:if="${#fields.hasErrors('laminaCm')}" th:errors="*{laminaCm}">erro</p>
+            </div>
+
+            <div class="botoes">
+                <button type="submit" class="botao">Salvar</button>
+                <a class="botao claro" th:href="@{/leituras}">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>
